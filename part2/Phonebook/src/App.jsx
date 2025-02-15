@@ -1,6 +1,7 @@
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Filter from './components/Filter'
+import axios from 'axios'
 import PersonForm from './components/PersonForm'
 import DisplayPerson from './components/DisplayPerson'
 
@@ -11,6 +12,13 @@ const App = () => {
     { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
     { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
   ])
+  const hook = () => {
+    axios.get('http://localhost:3001/persons').then(response => {
+      setPersons(response.data)
+    }
+    )
+  }
+  useEffect(hook, [])
 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
@@ -50,6 +58,8 @@ const App = () => {
   }
 
   const displayFiltered = persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()));
+
+
 
   return (
     <div>

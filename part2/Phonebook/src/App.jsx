@@ -1,9 +1,10 @@
 
 import { useState, useEffect } from 'react'
 import Filter from './components/Filter'
-import axios from 'axios'
 import PersonForm from './components/PersonForm'
 import DisplayPerson from './components/DisplayPerson'
+import backService from './services/Server'
+
 
 const App = () => {
   const [persons, setPersons] = useState([
@@ -12,13 +13,11 @@ const App = () => {
     { name: 'Dan Abramov', number: '12-43-234345', id: 3 },
     { name: 'Mary Poppendieck', number: '39-23-6423122', id: 4 }
   ])
-  const hook = () => {
-    axios.get('http://localhost:3001/persons').then(response => {
+  useEffect(() => {
+    backService.getAll().then(response => {
       setPersons(response.data)
-    }
-    )
-  }
-  useEffect(hook, [])
+    })
+  }, [])
 
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
@@ -29,15 +28,26 @@ const App = () => {
       name: newName,
       number: newNumber
     }
-    duplicate(newName) ?
-      alert(`${newName} is already added to phonebook`)
+    if (duplicate(newName)) {
+      if (window.confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        const person = persons.find(person => person.name === newName);
+        const changedPerson = { ...person, number: newNumber };
+        backService.update(person.id, changedPerson)
+          .then(response => {
+            setPersons(persons.map(person => person.id !== changedPerson.id ? person : changedPerson))
+          })
+      }
+    }
+    else
+      backService.create(personObject)
+        .then(response => {
+          console.log(response)
+          setPersons(persons.concat(personObject));
+          setNewName('');
+          setNewNumber('');
+        })
 
-      :
-      setPersons(persons.concat(personObject));
-    console.log({ persons })
-    console.log({ newNumber })
-    setNewName('');
-    setNewNumber('');
+
 
 
   }
@@ -55,6 +65,12 @@ const App = () => {
   const handleFilter = (event) => {
     console.log(event.target.value);
     setFilter(event.target.value);
+  }
+  const deletePerson = (id) => {
+    backService.deletePerson(id)
+      .then(response => {
+        setPersons(persons.filter(person => person.id !== id))
+      })
   }
 
   const displayFiltered = persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()));
@@ -74,7 +90,7 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <DisplayPerson persons={persons} filter={filter} displayFiltered={displayFiltered} />
+      <DisplayPerson persons={persons} filter={filter} displayFiltered={displayFiltered} deletePerson={deletePerson} />
     </div>
   )
 }

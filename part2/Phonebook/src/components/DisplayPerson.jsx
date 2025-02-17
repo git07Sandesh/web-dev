@@ -12,7 +12,7 @@ const Display = ({ person, deletePerson }) => {
         }
     };
     return (
-        <div key={person.name}>
+        <div>
             {person.name} {person.number}
             <button onClick={handleDelete}>delete</button>
         </div>
@@ -24,9 +24,9 @@ const DisplayPerson = ({ persons, filter, displayFiltered, deletePerson }) => {
     return (
         <div>
             {filter === '' ?
-                persons.map(person => <Display person={person} deletePerson={deletePerson} />)
+                persons.map(person => <Display key={person.id} person={person} deletePerson={deletePerson} />)
                 :
-                displayFiltered.map(person => <Display person={person} deletePerson={deletePerson} />)
+                displayFiltered.map(person => <Display key={person.id} person={person} deletePerson={deletePerson} />)
             }
         </div>
     )

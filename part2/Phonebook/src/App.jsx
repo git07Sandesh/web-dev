@@ -19,6 +19,8 @@ const App = () => {
     })
   }, [])
 
+  const [notification, setNotification] = useState({ message: null, type: ' ' })
+
   const [newName, setNewName] = useState('')
   const [newNumber, setNewNumber] = useState('')
   const [filter, setFilter] = useState('')
@@ -35,6 +37,13 @@ const App = () => {
         backService.update(person.id, changedPerson)
           .then(response => {
             setPersons(persons.map(person => person.id !== changedPerson.id ? person : changedPerson))
+          }).catch(error => {
+            setNotification({ message: `Information of ${newName} has already been removed from server`, type: 'error' })
+            setPersons(persons.filter(person => person.id !== changedPerson.id))
+            setTimeout(() => {
+              setNotification({ message: null, type: ' ' })
+            }, 5000)
+
           })
       }
     }
@@ -45,10 +54,11 @@ const App = () => {
           setPersons(persons.concat(personObject));
           setNewName('');
           setNewNumber('');
+          setNotification({ message: `Added ${newName}`, type: 'success' })
+          setTimeout(() => {
+            setNotification({ message: null, type: ' ' })
+          }, 3000)
         })
-
-
-
 
   }
   const duplicate = (p_name) => {
@@ -74,12 +84,21 @@ const App = () => {
   }
 
   const displayFiltered = persons.filter(person => person.name.toLowerCase().includes(filter.toLowerCase()));
-
+  const messageStyle = {
+    color: notification.type === 'success' ? 'green' : 'red',
+    background: 'lightgrey',
+    fontSize: 20,
+    borderStyle: 'solid',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10
+  }
 
 
   return (
     <div>
       <h2>Phonebook</h2>
+      {notification.message && <div style={messageStyle}>{notification.message}</div>}
       <Filter handleFilterChange={handleFilter} />
       <h2>add a new</h2>
       <PersonForm

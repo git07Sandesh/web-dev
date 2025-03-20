@@ -6,8 +6,9 @@ const cors = require('cors')
 app.use(cors())
 app.use(express.json())
 // Customized middleware;
-app.use(express.static('dist'))
 
+
+const PORT = process.env.PORT || 3001
 
 const requestLogger = (req,res,next) =>{
     console.log('method:', req.method)
@@ -80,8 +81,8 @@ const unknownEndpoint = (req,res) => {
     res.status(404).send({error : "unknown endpoint"})
 }
 app.use(unknownEndpoint)
+app.use(express.static('dist'))
 
-const PORT = process.env.PORT || 3001
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })

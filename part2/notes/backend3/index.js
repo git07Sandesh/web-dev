@@ -7,6 +7,8 @@ app.use(cors())
 app.use(express.json())
 // Customized middleware;
 
+app.use(express.static('dist'))
+
 
 const PORT = process.env.PORT || 3001
 
@@ -37,9 +39,7 @@ let notes = [
   }
 ]
 
-app.get('/', (req,res) => {
-    res.send('Hello World')
-})
+
 app.get('/api/notes',(req,res) => {
   res.json(notes)
 })
@@ -81,7 +81,7 @@ const unknownEndpoint = (req,res) => {
     res.status(404).send({error : "unknown endpoint"})
 }
 app.use(unknownEndpoint)
-app.use(express.static('dist'))
+
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)

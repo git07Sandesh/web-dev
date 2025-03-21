@@ -1,11 +1,11 @@
 const express = require("express");
-const app = express();
 const cors = require('cors')
 
+
+const app = express();
+
 app.use(cors())
-
 app.use(express.json()); // ✅ This must be at the top
-
 app.use(express.static("dist"));
 
 var morgan = require('morgan')
@@ -18,9 +18,6 @@ morgan.token('body', (req) => {
     return ""
 });
 app.use(morgan(':method :url :status :response-time ms - :body'));
-
-
-
 
 let notes = [
     { id: "1", name: "Arto Hellas", number: "040-123456" },
@@ -45,12 +42,12 @@ app.get('/api/persons/:id', (req,res) => {
     const id = req.params.id;
     const note = notes.find(note => note.id === id)
     if(note){res.json(note);}
-    else res.status(400).end();
+    else res.status(400).json({ error: "Person not found" });
 })
 app.delete('/api/persons/:id', (req,res) => {
     const id = req.params.id;
     notes = notes.filter(note => note.id !== id)
-    res.status(204).end()
+    res.status(204).json({ message: "Deleted successfully" })
 })
 const generateUserId = () => String(Math.floor(Math.random() * 30000));
 
